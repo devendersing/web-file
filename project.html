@@ -1,0 +1,815 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQL Query Assistant</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#4f46e5", secondary: "#8b5cf6" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      }
+      .sql-code {
+      font-family: 'Fira Code', monospace;
+      background-color: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      }
+      .sql-keyword { color: #93c5fd; }
+      .sql-function { color: #c4b5fd; }
+      .sql-table { color: #fbbf24; }
+      .sql-column { color: #a5f3fc; }
+      .sql-operator { color: #f472b6; }
+      .sql-value { color: #86efac; }
+      input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #4f46e5;
+      border-radius: 50%;
+      cursor: pointer;
+      }
+      .custom-checkbox:checked + label div:first-child {
+      background-color: #4f46e5;
+      border-color: #4f46e5;
+      }
+      .custom-checkbox:checked + label div:first-child i {
+      display: block;
+      }
+      .custom-radio:checked + label div:first-child {
+      border-color: #4f46e5;
+      }
+      .custom-radio:checked + label div:first-child div {
+      background-color: #4f46e5;
+      }
+      .switch-input:checked + .switch-slider {
+      background-color: #4f46e5;
+      }
+      .switch-input:checked + .switch-slider:before {
+      transform: translateX(20px);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16"
+      >
+        <div class="flex items-center">
+          <span class="text-2xl font-['Pacifico'] text-primary">logo</span>
+          <h1 class="ml-4 text-xl font-semibold text-gray-800">
+            SQL Query Assistant
+          </h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center">
+            <span class="text-sm text-gray-600 mr-2">Theme</span>
+            <label class="relative inline-block w-12 h-6">
+              <input type="checkbox" class="switch-input opacity-0 w-0 h-0" />
+              <span
+                class="switch-slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-all duration-300 before:absolute before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300"
+              ></span>
+            </label>
+          </div>
+          <div
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100"
+          >
+            <i class="ri-user-line text-gray-600"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-64 hidden lg:block bg-white border-r border-gray-200 overflow-y-auto"
+      >
+        <div class="p-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-800">History</h2>
+        </div>
+        <div class="p-4">
+          <div class="space-y-3">
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700 truncate">
+                Sales performance by region
+              </p>
+              <p class="text-xs text-gray-500 mt-1">May 15, 2025 • 10:23 AM</p>
+            </div>
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700 truncate">
+                Customer retention analysis
+              </p>
+              <p class="text-xs text-gray-500 mt-1">May 14, 2025 • 4:15 PM</p>
+            </div>
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700 truncate">
+                Product performance Q1 2025
+              </p>
+              <p class="text-xs text-gray-500 mt-1">May 12, 2025 • 11:05 AM</p>
+            </div>
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700 truncate">
+                Marketing campaign ROI
+              </p>
+              <p class="text-xs text-gray-500 mt-1">May 10, 2025 • 2:47 PM</p>
+            </div>
+          </div>
+          <button
+            class="mt-4 text-sm text-primary font-medium flex items-center"
+          >
+            <i class="ri-history-line mr-1"></i> View all history
+          </button>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+          <h2 class="text-lg font-medium text-gray-800">Saved Queries</h2>
+          <div class="mt-3 space-y-3">
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700">
+                Monthly Revenue Analysis
+              </p>
+            </div>
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700">
+                Customer Segmentation
+              </p>
+            </div>
+            <div
+              class="p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <p class="text-sm font-medium text-gray-700">Inventory Status</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <!-- Main content -->
+      <main class="flex-1 overflow-y-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <!-- Breadcrumbs -->
+          <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+              <li class="inline-flex items-center">
+                <a
+                  href="#"
+                  class="text-gray-700 hover:text-primary inline-flex items-center"
+                >
+                  <i class="ri-home-line mr-2"></i>
+                  Home
+                </a>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <i class="ri-arrow-right-s-line text-gray-400 mx-1"></i>
+                  <span class="text-gray-500">Query Assistant</span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+          <!-- Query Input Section -->
+          <section class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+              Ask your business question
+            </h2>
+            <div class="relative">
+              <textarea
+                id="queryTextarea"
+                class="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary text-gray-700 resize-none"
+                rows="3"
+                placeholder="Enter your business question..."
+              ></textarea>
+              <div class="absolute right-3 bottom-3 flex space-x-2">
+                <button
+                  id="deleteButton"
+                  class="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+                <button class="p-2 text-gray-400 hover:text-gray-600">
+                  <i class="ri-mic-line"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex justify-between mt-4">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 whitespace-nowrap !rounded-button"
+                >
+                  Sales by region
+                  <i class="ri-close-line ml-1"></i>
+                </button>
+                <button
+                  class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 whitespace-nowrap !rounded-button"
+                >
+                  Customer retention
+                  <i class="ri-close-line ml-1"></i>
+                </button>
+                <button
+                  class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 whitespace-nowrap !rounded-button"
+                >
+                  Revenue trends
+                  <i class="ri-close-line ml-1"></i>
+                </button>
+              </div>
+              <button
+                id="submitQueryBtn"
+                class="px-4 py-2 bg-primary text-white rounded flex items-center hover:bg-primary/90 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-search-line mr-2"></i>
+                <span>Submit Query</span>
+                <div id="loadingIndicator" class="hidden ml-2">
+                  <div
+                    class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                  ></div>
+                </div>
+              </button>
+            </div>
+          </section>
+          <!-- Results Display Section -->
+          <section class="bg-white shadow rounded-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold text-gray-800">Results</h2>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-500">Confidence: </span>
+                <div
+                  class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                >
+                  High (92%)
+                </div>
+              </div>
+            </div>
+            <!-- SQL Query Display -->
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-medium text-gray-700">
+                  Generated SQL Query
+                </h3>
+                <div class="flex space-x-2">
+                  <button
+                    class="p-2 text-gray-500 hover:text-gray-700 flex items-center justify-center"
+                  >
+                    <i class="ri-file-copy-line"></i>
+                  </button>
+                  <button
+                    class="p-2 text-gray-500 hover:text-gray-700 flex items-center justify-center"
+                  >
+                    <i class="ri-arrow-down-s-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sql-code text-sm">
+                <span class="sql-keyword">SELECT</span> r.region_name,
+                <span class="sql-function">SUM</span>(s.sales_amount)
+                <span class="sql-keyword">AS</span> total_sales,
+                <span class="sql-function">COUNT</span>(<span
+                  class="sql-function"
+                  >DISTINCT</span
+                >
+                c.customer_id)
+                <span class="sql-keyword">AS</span> customer_count
+                <span class="sql-keyword">FROM</span>
+                <span class="sql-table">sales</span> s
+                <span class="sql-keyword">JOIN</span>
+                <span class="sql-table">customers</span> c
+                <span class="sql-keyword">ON</span> s.customer_id
+                <span class="sql-operator">=</span> c.customer_id
+                <span class="sql-keyword">JOIN</span>
+                <span class="sql-table">regions</span> r
+                <span class="sql-keyword">ON</span> c.region_id
+                <span class="sql-operator">=</span> r.region_id
+                <span class="sql-keyword">WHERE</span> s.sale_date
+                <span class="sql-operator">BETWEEN</span>
+                <span class="sql-value">'2025-01-01'</span>
+                <span class="sql-operator">AND</span>
+                <span class="sql-value">'2025-04-30'</span>
+                <span class="sql-keyword">GROUP BY</span> r.region_name
+                <span class="sql-keyword">ORDER BY</span> total_sales
+                <span class="sql-keyword">DESC</span>;
+              </div>
+            </div>
+            <!-- Natural Language Results -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 mb-3">Analysis</h3>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-700 mb-4">
+                  Based on the Q1 2025 sales data, the
+                  <span class="font-semibold">Western region</span> leads with
+                  <span class="font-semibold">$1.42M</span> in total sales,
+                  followed by the Northeast ($1.18M), Southeast ($0.95M), and
+                  Midwest ($0.87M).
+                </p>
+                <p class="text-gray-700 mb-4">
+                  The Western region also has the highest average transaction
+                  value at <span class="font-semibold">$342</span>, which is 18%
+                  above the company average. However, the Southeast shows the
+                  strongest customer growth rate at 12.3% compared to the
+                  previous quarter.
+                </p>
+                <p class="text-gray-700">
+                  <span class="font-semibold">Key insight:</span> While the
+                  Western region dominates in total revenue, the Southeast's
+                  rapid customer acquisition suggests potential for significant
+                  revenue growth if average transaction values can be increased
+                  through targeted upselling strategies.
+                </p>
+              </div>
+            </div>
+          </section>
+          <!-- Visualization Section -->
+          <section class="bg-white shadow rounded-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">Visualization</h2>
+              <div class="flex items-center space-x-4">
+                <button
+                  class="px-3 py-1 bg-primary text-white rounded text-sm whitespace-nowrap !rounded-button"
+                >
+                  <i class="ri-download-line mr-1"></i>
+                  Export
+                </button>
+                <div class="relative">
+                  <button
+                    class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm flex items-center whitespace-nowrap !rounded-button"
+                  >
+                    <span>Share</span>
+                    <i class="ri-arrow-down-s-line ml-1"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Chart Type Selector -->
+            <div class="flex mb-6 overflow-x-auto pb-2 space-x-4">
+              <button
+                class="flex-shrink-0 p-3 bg-primary text-white rounded-lg flex flex-col items-center whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-bar-chart-horizontal-line text-xl mb-1"></i>
+                <span class="text-xs">Bar Chart</span>
+              </button>
+              <button
+                class="flex-shrink-0 p-3 bg-gray-100 text-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-pie-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Pie Chart</span>
+              </button>
+              <button
+                class="flex-shrink-0 p-3 bg-gray-100 text-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-line-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Line Chart</span>
+              </button>
+              <button
+                class="flex-shrink-0 p-3 bg-gray-100 text-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-bubble-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Scatter Plot</span>
+              </button>
+              <button
+                class="flex-shrink-0 p-3 bg-gray-100 text-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-donut-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Donut Chart</span>
+              </button>
+            </div>
+            <!-- Chart Display -->
+            <div class="flex flex-col lg:flex-row">
+              <div class="w-full lg:w-3/4 mb-6 lg:mb-0 lg:pr-6">
+                <div
+                  id="mainChart"
+                  class="w-full h-96 bg-white rounded-lg"
+                ></div>
+              </div>
+              <div class="w-full lg:w-1/4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h3 class="text-lg font-medium text-gray-700 mb-3">
+                    Chart Settings
+                  </h3>
+                  <!-- Chart Title -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Chart Title</label
+                    >
+                    <input
+                      type="text"
+                      value="Q1 2025 Regional Sales Performance"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+                  <!-- Sort Order -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Sort Order</label
+                    >
+                    <div class="flex space-x-2">
+                      <button
+                        class="px-3 py-1 bg-primary text-white text-sm rounded whitespace-nowrap !rounded-button"
+                      >
+                        Descending
+                      </button>
+                      <button
+                        class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded whitespace-nowrap !rounded-button"
+                      >
+                        Ascending
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Show Values -->
+                  <div class="mb-4">
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="showValues"
+                        class="custom-checkbox hidden"
+                      />
+                      <label
+                        for="showValues"
+                        class="flex items-center cursor-pointer"
+                      >
+                        <div
+                          class="w-5 h-5 border border-gray-300 rounded flex items-center justify-center mr-2"
+                        >
+                          <i class="ri-check-line text-white hidden"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Show Values</span>
+                      </label>
+                    </div>
+                  </div>
+                  <!-- Color Scheme -->
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Color Scheme</label
+                    >
+                    <div class="grid grid-cols-4 gap-2">
+                      <div
+                        class="w-6 h-6 bg-[#57b5e7] rounded cursor-pointer border-2 border-gray-300"
+                      ></div>
+                      <div
+                        class="w-6 h-6 bg-[#8dd3c7] rounded cursor-pointer"
+                      ></div>
+                      <div
+                        class="w-6 h-6 bg-[#fbbf72] rounded cursor-pointer"
+                      ></div>
+                      <div
+                        class="w-6 h-6 bg-[#fc8d62] rounded cursor-pointer"
+                      ></div>
+                    </div>
+                  </div>
+                  <!-- Legend Position -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Legend Position</label
+                    >
+                    <select
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary focus:border-primary pr-8"
+                    >
+                      <option>Top</option>
+                      <option selected>Right</option>
+                      <option>Bottom</option>
+                      <option>Left</option>
+                      <option>None</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize ECharts
+        const chartDom = document.getElementById("mainChart");
+        const myChart = echarts.init(chartDom);
+        const option = {
+          animation: false,
+          tooltip: {
+            trigger: "axis",
+            axisPointer: {
+              type: "shadow",
+            },
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            borderColor: "#e2e8f0",
+            borderWidth: 1,
+            textStyle: {
+              color: "#1f2937",
+            },
+          },
+          legend: {
+            data: ["Total Sales", "Customer Count"],
+            right: 10,
+            textStyle: {
+              color: "#1f2937",
+            },
+          },
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: ["Western", "Northeast", "Southeast", "Midwest"],
+            axisLine: {
+              lineStyle: {
+                color: "#d1d5db",
+              },
+            },
+            axisLabel: {
+              color: "#1f2937",
+            },
+          },
+          yAxis: [
+            {
+              type: "value",
+              name: "Total Sales ($)",
+              nameTextStyle: {
+                color: "#1f2937",
+              },
+              axisLine: {
+                lineStyle: {
+                  color: "#d1d5db",
+                },
+              },
+              axisLabel: {
+                formatter: "{value}K",
+                color: "#1f2937",
+              },
+              splitLine: {
+                lineStyle: {
+                  color: "#e5e7eb",
+                },
+              },
+            },
+            {
+              type: "value",
+              name: "Customer Count",
+              nameTextStyle: {
+                color: "#1f2937",
+              },
+              axisLine: {
+                lineStyle: {
+                  color: "#d1d5db",
+                },
+              },
+              axisLabel: {
+                color: "#1f2937",
+              },
+              splitLine: {
+                show: false,
+              },
+            },
+          ],
+          series: [
+            {
+              name: "Total Sales",
+              type: "bar",
+              data: [1420, 1180, 950, 870],
+              itemStyle: {
+                color: "rgba(87, 181, 231, 1)",
+                borderRadius: 4,
+              },
+              emphasis: {
+                itemStyle: {
+                  color: "rgba(87, 181, 231, 0.8)",
+                },
+              },
+            },
+            {
+              name: "Customer Count",
+              type: "bar",
+              yAxisIndex: 1,
+              data: [4150, 3860, 3240, 2980],
+              itemStyle: {
+                color: "rgba(141, 211, 199, 1)",
+                borderRadius: 4,
+              },
+              emphasis: {
+                itemStyle: {
+                  color: "rgba(141, 211, 199, 0.8)",
+                },
+              },
+            },
+          ],
+        };
+        myChart.setOption(option);
+        // Responsive chart resize
+        window.addEventListener("resize", function () {
+          myChart.resize();
+        });
+        // Custom checkbox functionality
+        const customCheckbox = document.getElementById("showValues");
+        customCheckbox.addEventListener("change", function () {
+          const newOption = {
+            series: [
+              {
+                label: {
+                  show: this.checked,
+                  position: "top",
+                  formatter: "{c}K",
+                },
+              },
+              {
+                label: {
+                  show: this.checked,
+                  position: "top",
+                },
+              },
+            ],
+          };
+          myChart.setOption(newOption);
+        });
+        // Theme toggle
+        const themeSwitch = document.querySelector(".switch-input");
+        themeSwitch.addEventListener("change", function () {
+          if (this.checked) {
+            document.body.classList.add("dark-theme");
+            // Additional dark theme logic would go here
+          } else {
+            document.body.classList.remove("dark-theme");
+          }
+        });
+      });
+    </script>
+    <div id="confirmDialog" class="hidden fixed inset-0 z-50">
+      <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+      <div
+        class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-[400px] max-w-[90%]"
+      >
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Confirm Delete</h3>
+        <p class="text-gray-600 mb-6">
+          Are you sure you want to clear your query?
+        </p>
+        <div class="flex justify-end space-x-3">
+          <button
+            id="cancelButton"
+            class="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 whitespace-nowrap !rounded-button"
+          >
+            Cancel
+          </button>
+          <button
+            id="clearButton"
+            class="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 whitespace-nowrap !rounded-button"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const deleteButton = document.getElementById("deleteButton");
+        const submitQueryBtn = document.getElementById("submitQueryBtn");
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const queryTextarea = document.getElementById("queryTextarea");
+        function showToast(message, type = "success") {
+          const toast = document.createElement("div");
+          toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded shadow-lg z-50 flex items-center ${
+            type === "success" ? "bg-green-500" : "bg-red-500"
+          } text-white`;
+
+          const icon = document.createElement("i");
+          icon.className = `${type === "success" ? "ri-check-line" : "ri-error-warning-line"} mr-2`;
+
+          toast.appendChild(icon);
+          toast.appendChild(document.createTextNode(message));
+
+          document.body.appendChild(toast);
+
+          setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transition = "opacity 0.5s ease";
+            setTimeout(() => toast.remove(), 500);
+          }, 3000);
+        }
+        function simulateQueryProcessing() {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              const mockData = {
+                regions: ["Eastern", "Central", "Southern", "Northern"],
+                sales: [1680, 1420, 1150, 990],
+                customers: [4500, 4120, 3680, 3240],
+              };
+              resolve(mockData);
+            }, 2000);
+          });
+        }
+        function updateChartData(data) {
+          const chartDom = document.getElementById("mainChart");
+          const myChart = echarts.init(chartDom);
+
+          const newOption = {
+            xAxis: {
+              data: data.regions,
+            },
+            series: [
+              {
+                name: "Total Sales",
+                data: data.sales,
+              },
+              {
+                name: "Customer Count",
+                data: data.customers,
+              },
+            ],
+          };
+
+          myChart.setOption(newOption);
+        }
+        submitQueryBtn.addEventListener("click", async function () {
+          const query = queryTextarea.value.trim();
+
+          if (!query) {
+            showToast("Please enter a query", "error");
+            return;
+          }
+          const btnText = submitQueryBtn.querySelector("span");
+          btnText.textContent = "Processing...";
+          loadingIndicator.classList.remove("hidden");
+          submitQueryBtn.disabled = true;
+
+          try {
+            const data = await simulateQueryProcessing();
+            updateChartData(data);
+            showToast("Query processed successfully");
+          } catch (error) {
+            showToast("Error processing query", "error");
+          } finally {
+            btnText.textContent = "Submit Query";
+            loadingIndicator.classList.add("hidden");
+            submitQueryBtn.disabled = false;
+          }
+        });
+        const confirmDialog = document.getElementById("confirmDialog");
+        const cancelButton = document.getElementById("cancelButton");
+        const clearButton = document.getElementById("clearButton");
+        const queryTextarea = document.getElementById("queryTextarea");
+        deleteButton.addEventListener("click", function () {
+          confirmDialog.classList.remove("hidden");
+        });
+        cancelButton.addEventListener("click", function () {
+          confirmDialog.classList.add("hidden");
+        });
+        clearButton.addEventListener("click", function () {
+          queryTextarea.value = "";
+          confirmDialog.classList.add("hidden");
+        });
+      });
+    </script>
+  </body>
+</html>
